@@ -5,24 +5,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ranchi Food Rescue | Live Portal</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #f4f6f8; color: #1a202c; padding-bottom: 3rem; }
-    header { background: #1b5e20; color: white; padding: 1.2rem 1rem; text-align: center; }
-    header h1 { font-size: 1.3rem; margin-bottom: 0.3rem; }
-    header p { font-size: 0.85rem; opacity: 0.9; }
-    .container { max-width: 550px; margin: 1rem auto; padding: 0 1rem; }
-    .card { background: white; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    h2 { font-size: 1.1rem; margin-bottom: 0.8rem; border-left: 4px solid #1b5e20; padding-left: 0.5rem; }
-    input, select, button { width: 100%; padding: 0.75rem; margin-bottom: 0.8rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; }
-    .btn-submit { background: #1b5e20; color: white; font-weight: bold; border: none; cursor: pointer; }
-    .btn-claim { background: #25d366; color: white; font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .item-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; background: #fff; }
-    .item-card.claimed { background: #f1f5f9; border-color: #cbd5e1; opacity: 0.75; }
-    .tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .tag-avail { background: #dcfce7; color: #15803d; }
-    .tag-claimed { background: #fee2e2; color: #b91c1c; }
-    .meta { font-size: 0.85rem; color: #475569; margin: 0.25rem 0; }
-  </style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: #f0f4f8; color: #2d3748; padding-bottom: 3rem; }
+  
+  /* आकर्षक कलरफुल हेडर */
+  header { 
+    background: linear-gradient(135deg, #1b5e20, #2e7d32); 
+    color: #ffffff; 
+    padding: 1.5rem 1rem; 
+    text-align: center; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  header h1 { font-size: 1.45rem; font-weight: 700; margin-bottom: 0.3rem; letter-spacing: 0.3px; }
+  header p { font-size: 0.88rem; color: #e8f5e9; font-weight: 400; }
+  
+  .container { max-width: 550px; margin: 1.2rem auto; padding: 0 1rem; }
+  
+  /* क्लीन मॉडर्न कार्ड */
+  .card { 
+    background: #ffffff; 
+    border-radius: 14px; 
+    padding: 1.25rem; 
+    margin-bottom: 1.2rem; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    border: 1px solid #e2e8f0; 
+  }
+  h2 { font-size: 1.15rem; color: #1a202c; margin-bottom: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  
+  /* इनपुट फ़ील्ड्स */
+  input, select { 
+    width: 100%; 
+    padding: 0.75rem 0.9rem; 
+    margin-bottom: 0.75rem; 
+    border: 1.5px solid #cbd5e0; 
+    border-radius: 8px; 
+    font-size: 0.95rem; 
+    background: #f8fafc;
+    color: #2d3748;
+    transition: all 0.2s;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #2e7d32;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+  }
+  
+  /* कलरफुल सबमिट बटन */
+  .btn-submit { 
+    background: linear-gradient(135deg, #2e7d32, #1b5e20); 
+    color: #ffffff; 
+    border: none; 
+    border-radius: 8px;
+    padding: 0.85rem; 
+    font-size: 1rem; 
+    font-weight: 600; 
+    cursor: pointer; 
+    width: 100%; 
+    box-shadow: 0 3px 8px rgba(46, 125, 50, 0.3);
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  .btn-submit:active { transform: scale(0.98); }
+  
+  /* लिस्टिंग कार्ड और क्लेम बटन */
+  .btn-claim { 
+    background: #25d366; 
+    color: #ffffff; 
+    border: none; 
+    border-radius: 6px;
+    padding: 0.6rem 1rem; 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    cursor: pointer; 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px; 
+    text-decoration: none; 
+    box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3);
+  }
+  .item-card { 
+    background: #ffffff; 
+    border: 1px solid #e2e8f0; 
+    border-left: 5px solid #2e7d32; 
+    border-radius: 10px; 
+    padding: 1rem; 
+    margin-bottom: 0.85rem; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .item-card.claimed { 
+    background: #f7fafc; 
+    border-left-color: #a0aec0; 
+    opacity: 0.75; 
+  }
+  
+  /* टैग्स */
+  .tag { display: inline-block; padding: 0.25rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .tag-avail { background: #dcfce7; color: #15803d; }
+  .tag-claimed { background: #edf2f7; color: #4a5568; }
+  .meta { font-size: 0.82rem; color: #718096; margin: 0.4rem 0; line-height: 1.4; }
+</style>
 
   <!-- Firebase Scripts (v9 Compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
