@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ranchi Food Rescue | Live Portal</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f4f6f8; color: #1a202c; padding-bottom: 3rem; }
+    header { background: #1b5e20; color: white; padding: 1.2rem 1rem; text-align: center; }
+    header h1 { font-size: 1.3rem; margin-bottom: 0.3rem; }
+    header p { font-size: 0.85rem; opacity: 0.9; }
+    .container { max-width: 550px; margin: 1rem auto; padding: 0 1rem; }
+    .card { background: white; border-radius: 12px; padding: 1.2rem; margin-bottom: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    h2 { font-size: 1.1rem; margin-bottom: 0.8rem; border-left: 4px solid #1b5e20; padding-left: 0.5rem; }
+    input, select, button { width: 100%; padding: 0.75rem; margin-bottom: 0.8rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; }
+    .btn-submit { background: #1b5e20; color: white; font-weight: bold; border: none; cursor: pointer; }
+    .btn-claim { background: #25d366; color: white; font-weight: bold; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .item-card { border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; background: #fff; }
+    .item-card.claimed { background: #f1f5f9; border-color: #cbd5e1; opacity: 0.75; }
+    .tag { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .tag-avail { background: #dcfce7; color: #15803d; }
+    .tag-claimed { background: #fee2e2; color: #b91c1c; }
+    .meta { font-size: 0.85rem; color: #475569; margin: 0.25rem 0; }
+  </style>
+
+  <!-- Firebase Scripts (v9 Compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>🍲 Ranchi Surplus Food Bridge</h1>
+    <p>Connecting Caterers with Volunteer Rescue Teams</p>
+  </header>
+
+  <div class="container">
+    <!-- DONOR POST FORM -->
+    <div class="card">
+      <h2>1. Caterer / Venue: Post Leftover Food</h2>
+      <form id="foodForm">
+        <input type="text" id="venueName" placeholder="Venue Name (e.g. Utsav Hall, Morabadi)" required>
+        <input type="text" id="foodDesc" placeholder="Food Details (e.g. 50 Plates Rice, Dal & Sabzi)" required>
+        <select id="foodType">
+          <option value="Veg">Pure Veg 🟢</option>
+          <option value="Non-Veg">Non-Veg 🔴</option>
+        </select>
+        <input type="text" id="address" placeholder="Pickup Address / Landmark in Ranchi" required>
+        <input type="tel" id="phone" placeholder="Your 10-Digit WhatsApp Number" pattern="[0-9]{10}" required>
+        <button type="submit" class="btn-submit" id="submitBtn">Post Food for Pickup</button>
+      </form>
+    </div>
+
+    <!-- LIVE LISTINGS -->
+    <h2>2. Live Alerts for NGOs / Volunteers</h2>
+    <div id="loading" style="text-align: center; color: #64748b; font-size: 0.9rem;">Connecting to database...</div>
+    <div id="postsList"></div>
+  </div>
+
+  <script>
+    // ==========================================
+    // FIREBASE CONFIGURATION
+    // ==========================================
+    const firebaseConfig = {
+      apiKey: "AIzaSyCep-9h38AAQwScERdNhUwAFW-FVZe_Roc",
+      authDomain: "ranchi-food-rescue.firebaseapp.com",
+      projectId: "ranchi-food-rescue",
+      storageBucket: "ranchi-food-rescue.firebasestorage.app",
+      messagingSenderId: "906685807019",
+      appId: "1:906685807019:web:8e1d144b8681b16977baee",
+      measurementId: "G-ZKS41H76JL"
+    };
+
+    // Initialize Firebase & Firestore
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const foodForm = document.getElementById('foodForm');
+    const postsList = document.getElementById('postsList');
+    const loading = document.getElementById('loading');
+
+    // 1. SUBMIT FOOD TO FIREBASE
+    foodForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Posting...";
+
+      const newPost = {
+        venue: document.getElementById('venueName').value,
+        food: document.getElementById('foodDesc').value,
+        type: document.getElementById('foodType').value,
+        address: document.getElementById('address').value,
+        phone: document.getElementById('phone').value,
+        status: "available",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        await db.collection("food_listings").add(newPost);
+        foodForm.reset();
+        alert("Success! Your food alert is live for local NGOs.");
+      } catch (err) {
+        alert("Error posting: " + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Post Food for Pickup";
+      }
+    });
+
+    // 2. LISTEN LIVE TO DATABASE CHANGES
+    db.collection("food_listings")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        loading.style.display = 'none';
+        postsList.innerHTML = "";
+
+        if (snapshot.empty) {
+          postsList.innerHTML = "<p style='color:#64748b; font-size:0.9rem;'>No active food surplus right now.</p>";
+          return;
+        }
+
+        snapshot.forEach((doc) => {
+          const item = doc.data();
+          const id = doc.id;
+          const isClaimed = item.status === "claimed";
+
+          const card = document.createElement('div');
+          card.className = `item-card ${isClaimed ? 'claimed' : ''}`;
+          
+          card.innerHTML = `
+            <span class="tag ${isClaimed ? 'tag-claimed' : 'tag-avail'}">
+              ${isClaimed ? 'Claimed / Picked Up' : '● Available Now'}
+            </span>
+            <h3 style="font-size:1.05rem; margin-bottom:4px;">${item.food} (${item.type})</h3>
+            <p class="meta"><strong>📍 Location:</strong> ${item.address}</p>
+            <p class="meta"><strong>🏢 Venue:</strong> ${item.venue}</p>
+            <p class="meta"><strong>📞 Phone:</strong> +91 ${item.phone}</p>
+            
+            ${!isClaimed ? `
+              <div style="margin-top:0.8rem;">
+                <input type="text" id="ngo_${id}" placeholder="Your NGO / Volunteer Name" style="margin-bottom:0.4rem;">
+                <button class="btn-claim" onclick="claimFood('${id}', '${item.phone}', '${item.venue}', '${item.food}')">
+                  Claim & Chat on WhatsApp
+                </button>
+              </div>
+            ` : `<p style="margin-top:0.5rem; font-size:0.85rem; color:#64748b; font-weight:bold;">Claimed by: ${item.claimedBy || 'Volunteer'}</p>`}
+          `;
+
+          postsList.appendChild(card);
+        });
+      }, (error) => {
+        loading.innerText = "Error loading data. Check Firestore rules or config.";
+      });
+
+    // 3. CLAIM AND REDIRECT TO WHATSAPP
+    window.claimFood = async (id, donorPhone, venue, foodName) => {
+      const ngoInput = document.getElementById(`ngo_${id}`);
+      const ngoName = ngoInput.value.trim() || "Local Volunteer";
+
+      try {
+        await db.collection("food_listings").doc(id).update({
+          status: "claimed",
+          claimedBy: ngoName
+        });
+
+        // Trigger WhatsApp
+        const text = `Hello ${venue}, I am ${ngoName}. I saw your listing for "${foodName}" on the Ranchi Food Rescue portal. Our team is coming to pick it up. Please confirm.`;
+        window.open(`https://wa.me/91${donorPhone}?text=${encodeURIComponent(text)}`, '_blank');
+      } catch (err) {
+        alert("Could not claim: " + err.message);
+      }
+    };
+  </script>
+</body>
+</html>
