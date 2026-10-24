@@ -205,7 +205,7 @@
     });
 
     // 2. LISTEN LIVE TO DATABASE CHANGES
-    db.collection("food_listings").where("status","==","available")
+    db.collection("food_listings")
       .orderBy("timestamp", "desc")
       .onSnapshot((snapshot) => {
         loading.style.display = 'none';
